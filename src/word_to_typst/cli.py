@@ -48,6 +48,9 @@ def main(inputs, output, output_dir, input_dir, pandoc_image):
     failures = 0
     total = len(files)
 
+    if output and total > 1:
+        click.echo("Warning: --output is ignored when multiple files are given; use --output-dir instead.")
+
     for input_path in files:
         input_path = Path(input_path)
         if output_dir:

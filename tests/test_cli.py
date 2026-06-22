@@ -83,7 +83,7 @@ def test_podman_not_found_exits_early(runner, docx_file):
         result = runner.invoke(main, [str(docx_file)])
 
     assert result.exit_code != 0
-    assert "podman" in result.output.lower()
+    assert "podman" in result.stderr.lower()
 
 
 def test_conversion_failure_exits_nonzero(runner, docx_file):
@@ -108,6 +108,19 @@ def test_batch_partial_failure_reports_summary(runner, tmp_path):
 
     assert result.exit_code != 0
     assert "1 of 2" in result.output
+
+
+def test_output_with_multiple_files_warns(runner, tmp_path):
+    f1 = tmp_path / "a.docx"
+    f2 = tmp_path / "b.docx"
+    f1.write_bytes(b"x")
+    f2.write_bytes(b"x")
+
+    with patch("word_to_typst.cli.check_podman", return_value=True), \
+         patch("word_to_typst.cli.convert", return_value=(True, "")):
+        result = runner.invoke(main, [str(f1), str(f2), "--output", "out.typ"])
+
+    assert "warning" in result.output.lower()
 
 
 def test_custom_pandoc_image(runner, docx_file):
