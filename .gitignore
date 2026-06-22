@@ -1,0 +1,18 @@
+# Sample/test files
+test1.doc
+test2.docx
+*.doc
+*.docx
+
+# Internal plans and memory
+.remember/
+docs/superpowers/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+dist/
+.pytest_cache/
+.ruff_cache/
