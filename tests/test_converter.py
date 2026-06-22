@@ -90,6 +90,33 @@ def test_convert_no_images(tmp_path):
     assert not images_dir.exists()
 
 
+def test_convert_image_paths_rewritten(tmp_path):
+    input_file = tmp_path / "report.docx"
+    input_file.write_bytes(b"fake")
+    output_file = tmp_path / "out" / "report.typ"
+    output_file.parent.mkdir()
+
+    def fake_run(cmd, **kwargs):
+        v_idx = cmd.index("-v")
+        host_dir = Path(cmd[v_idx + 1].split(":")[0])
+        (host_dir / "output.typ").write_text('#box(image("images/media/fig1.png"))')
+        images_dir = host_dir / "images" / "media"
+        images_dir.mkdir(parents=True)
+        (images_dir / "fig1.png").write_bytes(b"PNG")
+        result = MagicMock()
+        result.returncode = 0
+        result.stderr = ""
+        return result
+
+    with patch("word_to_typst.converter.subprocess.run", side_effect=fake_run):
+        success, error = convert(input_file, output_file)
+
+    assert success is True
+    content = output_file.read_text()
+    assert '"report_images/media/fig1.png"' in content
+    assert '"images/' not in content
+
+
 def test_convert_podman_failure(tmp_path):
     input_file = tmp_path / "test.docx"
     input_file.write_bytes(b"fake")

@@ -47,5 +47,11 @@ def convert(
             if dest_images.exists():
                 shutil.rmtree(dest_images)
             shutil.move(str(src_images), str(dest_images))
+            # Pandoc writes image paths as "images/..." — rewrite to match renamed dir
+            typ_content = output_path.read_text(encoding="utf-8")
+            output_path.write_text(
+                typ_content.replace('"images/', f'"{output_path.stem}_images/'),
+                encoding="utf-8",
+            )
 
     return True, ""
