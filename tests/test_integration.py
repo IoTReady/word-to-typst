@@ -6,7 +6,7 @@ import pytest
 
 from word_to_typst.converter import convert
 
-PANDOC_IMAGE = "pandoc/extra:latest"
+PANDOC_IMAGE = "docker.io/pandoc/extra:latest"
 
 
 @pytest.fixture(scope="session")

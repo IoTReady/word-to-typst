@@ -33,7 +33,7 @@ def test_single_file_default_output(runner, docx_file):
     assert result.exit_code == 0
     expected_output = docx_file.with_suffix(".typ")
     mock_convert.assert_called_once_with(
-        docx_file, expected_output, "pandoc/extra:latest"
+        docx_file, expected_output, "docker.io/pandoc/extra:latest"
     )
 
 
@@ -44,7 +44,7 @@ def test_single_file_explicit_output(runner, docx_file, tmp_path):
         result = runner.invoke(main, [str(docx_file), "--output", str(out)])
 
     assert result.exit_code == 0
-    mock_convert.assert_called_once_with(docx_file, out, "pandoc/extra:latest")
+    mock_convert.assert_called_once_with(docx_file, out, "docker.io/pandoc/extra:latest")
 
 
 def test_batch_output_dir(runner, tmp_path):

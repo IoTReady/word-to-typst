@@ -24,7 +24,7 @@ def build_podman_command(input_filename: str, pandoc_image: str, tmpdir: str) ->
 def convert(
     input_path: Path,
     output_path: Path,
-    pandoc_image: str = "pandoc/extra:latest",
+    pandoc_image: str = "docker.io/pandoc/extra:latest",
 ) -> tuple[bool, str]:
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp = Path(tmpdir)

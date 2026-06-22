@@ -33,7 +33,7 @@ word-to-typst *.docx --output-dir out/
 word-to-typst --dir ./docs --output-dir ./typst-out
 
 # Use a different pandoc image
-word-to-typst report.docx --pandoc-image pandoc/core:latest
+word-to-typst report.docx --pandoc-image docker.io/pandoc/core:latest
 ```
 
 Images embedded in the source document are extracted to `{stem}_images/` next to each `.typ` file.

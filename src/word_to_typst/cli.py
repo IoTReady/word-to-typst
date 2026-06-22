@@ -6,7 +6,7 @@ import click
 from word_to_typst.converter import check_podman, convert
 
 SUPPORTED = {".doc", ".docx"}
-DEFAULT_IMAGE = "pandoc/extra:latest"
+DEFAULT_IMAGE = "docker.io/pandoc/extra:latest"
 
 
 @click.command()
