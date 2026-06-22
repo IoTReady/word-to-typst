@@ -7,6 +7,7 @@ from word_to_typst.converter import check_podman, convert
 
 SUPPORTED = {".doc", ".docx"}
 DEFAULT_IMAGE = "docker.io/pandoc/extra:latest"
+DEFAULT_LO_IMAGE = "docker.io/linuxserver/libreoffice:latest"
 
 
 @click.command()
@@ -19,7 +20,9 @@ DEFAULT_IMAGE = "docker.io/pandoc/extra:latest"
               default=None, help="Convert all .doc/.docx files in this directory.")
 @click.option("--pandoc-image", "pandoc_image", default=DEFAULT_IMAGE, show_default=True,
               help="Pandoc Docker image to use.")
-def main(inputs, output, output_dir, input_dir, pandoc_image):
+@click.option("--libreoffice-image", "libreoffice_image", default=DEFAULT_LO_IMAGE, show_default=True,
+              help="LibreOffice image for .doc pre-conversion.")
+def main(inputs, output, output_dir, input_dir, pandoc_image, libreoffice_image):
     """Convert .doc and .docx files to Typst format."""
     if not check_podman():
         click.echo(
@@ -61,7 +64,7 @@ def main(inputs, output, output_dir, input_dir, pandoc_image):
             output_path = input_path.with_suffix(".typ")
 
         click.echo(f"Converting {input_path.name} ...", nl=False)
-        success, error = convert(input_path, output_path, pandoc_image)
+        success, error = convert(input_path, output_path, pandoc_image, libreoffice_image)
         if success:
             click.echo(f" done -> {output_path}")
         else:

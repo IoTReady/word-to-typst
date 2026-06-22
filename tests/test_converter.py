@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from word_to_typst.converter import build_podman_command, check_podman, convert
+from word_to_typst.converter import build_doc_to_docx_command, build_podman_command, check_podman, convert
 
 
 def test_check_podman_found():
@@ -115,6 +115,71 @@ def test_convert_image_paths_rewritten(tmp_path):
     content = output_file.read_text()
     assert '"report_images/media/fig1.png"' in content
     assert '"images/' not in content
+
+
+def test_build_doc_to_docx_command():
+    cmd = build_doc_to_docx_command("report.doc", "docker.io/linuxserver/libreoffice:latest", "/tmp/work")
+    assert cmd[0] == "podman"
+    assert "--entrypoint" in cmd
+    assert "soffice" in cmd
+    assert "--headless" in cmd
+    assert "--convert-to" in cmd
+    assert "docx" in cmd
+    assert "report.doc" in cmd
+    assert "/tmp/work:/data" in cmd
+    assert "docker.io/linuxserver/libreoffice:latest" in cmd
+
+
+def test_convert_doc_runs_libreoffice_first(tmp_path):
+    input_file = tmp_path / "test.doc"
+    input_file.write_bytes(b"fake")
+    output_file = tmp_path / "out" / "test.typ"
+    output_file.parent.mkdir()
+
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        v_idx = cmd.index("-v")
+        host_dir = Path(cmd[v_idx + 1].split(":")[0])
+        if "soffice" in cmd:
+            # Simulate LibreOffice creating the .docx
+            (host_dir / "test.docx").write_bytes(b"fake docx")
+        else:
+            # Simulate pandoc writing output
+            (host_dir / "output.typ").write_text("#heading[Hello]")
+        result = MagicMock()
+        result.returncode = 0
+        result.stderr = ""
+        return result
+
+    with patch("word_to_typst.converter.subprocess.run", side_effect=fake_run):
+        success, error = convert(input_file, output_file)
+
+    assert success is True
+    assert len(calls) == 2
+    assert "soffice" in calls[0]
+    assert "--to=typst" in calls[1]
+    # pandoc must be invoked on the .docx, not the .doc
+    assert "test.docx" in calls[1]
+    assert "test.doc" not in calls[1]
+
+
+def test_convert_doc_libreoffice_failure(tmp_path):
+    input_file = tmp_path / "test.doc"
+    input_file.write_bytes(b"fake")
+    output_file = tmp_path / "out" / "test.typ"
+    output_file.parent.mkdir()
+
+    mock_result = MagicMock()
+    mock_result.returncode = 1
+    mock_result.stderr = "soffice: error"
+
+    with patch("word_to_typst.converter.subprocess.run", return_value=mock_result):
+        success, error = convert(input_file, output_file)
+
+    assert success is False
+    assert "soffice: error" in error
 
 
 def test_convert_podman_failure(tmp_path):

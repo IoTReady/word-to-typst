@@ -5,7 +5,9 @@ Convert `.doc` and `.docx` files to [Typst](https://typst.app) format, with imag
 ## Requirements
 
 - [podman](https://podman.io) installed and in PATH
-- The `pandoc/extra` image is pulled automatically on first use
+- Images are pulled automatically on first use:
+  - `docker.io/pandoc/extra` — for `.docx` conversion
+  - `docker.io/linuxserver/libreoffice` — for `.doc` pre-conversion (legacy format)
 
 ## Install
 
@@ -34,6 +36,9 @@ word-to-typst --dir ./docs --output-dir ./typst-out
 
 # Use a different pandoc image
 word-to-typst report.docx --pandoc-image docker.io/pandoc/core:latest
+
+# Use a different LibreOffice image (for .doc files)
+word-to-typst report.doc --libreoffice-image docker.io/linuxserver/libreoffice:latest
 ```
 
 Images embedded in the source document are extracted to `{stem}_images/` next to each `.typ` file.
