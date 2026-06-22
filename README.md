@@ -55,7 +55,7 @@ uv sync --dev
 # Unit tests (no podman needed)
 uv run pytest tests/test_converter.py tests/test_cli.py -v
 
-# Integration tests (requires podman + network)
+# Integration tests (requires podman + network + typst in PATH)
 uv run pytest tests/test_integration.py -v -m integration
 ```
 
